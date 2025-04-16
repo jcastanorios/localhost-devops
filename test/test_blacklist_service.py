@@ -79,4 +79,6 @@ class BlacklistServiceTest(unittest.TestCase):
 
             self.assertEqual(status, 200)
             self.assertFalse(response.get_json()["is_blacklisted"])
+    
+    
 

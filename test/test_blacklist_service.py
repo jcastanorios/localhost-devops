@@ -47,32 +47,35 @@ class BlacklistServiceTest(unittest.TestCase):
         self.assertIn('error', response.json)
 
 
-    @patch('core.blacklist_service.BlacklistService.query.filter_by')
-    def test_check_blacklist_email_in_list(self, mock_filter_by):
-        mock_blacklist_entry = MagicMock()
-        mock_blacklist_entry.blocked_reason = "Spam"
-        mock_filter_by.return_value.first.return_value = mock_blacklist_entry
-        email = "test@example.com"
-        
-        with self.app.app_context():  # Aseguramos que el contexto de la aplicación esté disponible
-            response = BlacklistService.check_blacklist(email)
-        
-        self.assertEqual(response[1], 200)
-        self.assertIn("is_blacklisted", response[0].get_data(as_text=True))
-        self.assertTrue("is_blacklisted" in response[0].get_json())
-        self.assertTrue(response[0].get_json()["is_blacklisted"])
+    @patch('core.blacklist_service.BlacklistService.add_to_blacklist')
+    def test_add_to_blacklist_success(self, mock_add):
+        mock_add.return_value = True
 
-    @patch('core.blacklist_service.BlacklistService.query.filter_by')
-    def test_check_blacklist_email_not_in_list(self, mock_filter_by):
-        mock_filter_by.return_value.first.return_value = None
-        email = "test@example.com"
-        
+        response = self.app.test_client().post('/blacklists', json={"token": "abc123"},
+                                            headers={'Content-Type': 'application/json'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('message', response.json)
+
+        mock_add.assert_called_once_with("abc123", 'test-app-uuid', 'test-reason', '127.0.0.1')
+
+    def test_check_blacklist_found(self):
         with self.app.app_context():
-            response = BlacklistService.check_blacklist(email)
-        
-        self.assertEqual(response[1], 200)
-        self.assertIn("is_blacklisted", response[0].get_data(as_text=True))
-        self.assertFalse(response[0].get_json()["is_blacklisted"])
+            BlacklistService.add_to_blacklist(
+                email="blacklisted@example.com",
+                app_uuid="app-uuid",
+                blocked_reason="reason",
+                ip_address="127.0.0.1"
+            )
+            response, status = BlacklistService.check_blacklist("blacklisted@example.com")
 
-if __name__ == '__main__':
-    unittest.main()
+            self.assertEqual(status, 200)
+            self.assertTrue(response.get_json()["is_blacklisted"])
+    
+
+    def test_check_blacklist_not_found(self):
+        with self.app.app_context():
+            response, status = BlacklistService.check_blacklist("notfound@example.com")
+
+            self.assertEqual(status, 200)
+            self.assertFalse(response.get_json()["is_blacklisted"])

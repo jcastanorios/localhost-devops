@@ -1,18 +1,35 @@
 version: 0.2
-
 phases:
   pre_build:
     commands:
-      - echo "Iniciando la instalación de dependencias..."
-      - pip install -r requirements.txt
-      - echo "Inicia ejecución de pruebas unitarias"
-      - python3 -m unittest discover -s test
-  
+      - echo Loguearse dentro de Amazon ECR...
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 781000631387.dkr.ecr.us-east-2.amazonaws.com
+  build:
+    commands:
+      - echo Inicio compilación en `date`
+      - echo Construyendo imagen de docker...          
+      - docker build -t localhost-devops-repository:latest .
+      - echo Etiquetando imagen de docker...  
+      - docker tag localhost-devops-repository:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest
   post_build:
     commands:
-      - echo "Construcción completada con éxito!"
-      
+      - echo Creación de imagen completada en `date`
+      - echo Enviar  imagen al repositorio de AWS...
+      - docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest
+      - echo Escribiendo el archivo de definición de la imagen...
+      - printf '[{"name":"Container-app-python","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest"}]' > imagedefinitions.json
+      - printf '{"ImageURI":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest"}' > imageLocalhostDevopsDetail.json
+      - cat imageLocalhostDevopsDefinitions.json 
 artifacts:
   files:
-    - echo "Construcción en progreso..."
     - '**/*'
+    - imageLocalhostDevopsDefinitions.json
+    - imageLocalhostDevopsDetail.json
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.yaml
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageLocalhostDevopsDetail.json

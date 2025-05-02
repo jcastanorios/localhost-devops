@@ -1,6 +1,9 @@
 # Usar una imagen base oficial de Python
 FROM python:3.9-slim
 
+RUN apk add py3-pip \
+    && pip install --upgrade pip
+
 # Configuración del directorio de trabajo
 WORKDIR /app
 

@@ -19,11 +19,11 @@ phases:
       - echo Escribiendo el archivo de definición de la imagen...
       - printf '[{"name":"Container-app-python","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest"}]' > imagedefinitions.json
       - printf '{"ImageURI":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost-devops-repository:latest"}' > imageLocalhostDevopsDetail.json
-      - cat imageLocalhostDevopsDefinitions.json 
+      - cat imagedefinitions.json
 artifacts:
   files:
     - '**/*'
-    - imageLocalhostDevopsDefinitions.json
+    - imagedefinitions.json
     - imageLocalhostDevopsDetail.json
   secondary-artifacts:
     DefinitionArtifact:

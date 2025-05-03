@@ -1,5 +1,5 @@
 {
-    "executionRoleArn": "arn:aws:iam::994617978174:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::781000631387:role/ecsCodeDeployRole",
     "containerDefinitions": [
       {
         "portMappings": [
@@ -12,7 +12,7 @@
 
         "image": "<IMAGE1_NAME>",
         "essential": true,
-        "name": "Container-app-python"
+        "name": "container-localhost-app"
       }
     ],
 
@@ -22,5 +22,5 @@
     "networkMode": "awsvpc",
     "cpu": "512",
     "memory": "1024",
-    "family": "Task-app-python"
+    "family": "task-localhost-app"
   }

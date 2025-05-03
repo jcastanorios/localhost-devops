@@ -1,26 +1,38 @@
 {
-    "executionRoleArn": "arn:aws:iam::781000631387:role/ecsCodeDeployRole",
-    "containerDefinitions": [
-      {
-        "portMappings": [
-          {
-            "hostPort": 5000,
-            "protocol": "tcp",
-            "containerPort": 5000
-          }
-        ],
-
-        "image": "<IMAGE1_NAME>",
-        "essential": true,
-        "name": "container-localhost-app"
-      }
-    ],
-
-    "requiresCompatibilities": [
-      "FARGATE"
-    ],
-    "networkMode": "awsvpc",
-    "cpu": "512",
-    "memory": "1024",
-    "family": "task-localhost-app"
-  }
+  "executionRoleArn": "arn:aws:iam::781000631387:role/ecsCodeDeployRole",
+  "containerDefinitions": [
+    {
+      "portMappings": [
+        {
+          "hostPort": 5000,
+          "protocol": "tcp",
+          "containerPort": 5000
+        }
+      ],
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "name": "container-localhost-app",
+      "environment": [
+        {
+          "name": "JWT_SECRET_KEY",
+          "value": "54f0f04b-2754-4e96-b7a7-4af0564251ca"
+        },
+        {
+          "name": "STATIC_JWT_TOKEN",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        },
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql://localhostdb:l0c4lh0stdb@localhost-db.c1422m44qk5v.us-east-2.rds.amazonaws.com:5432/postgres"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "family": "task-localhost-app"
+}

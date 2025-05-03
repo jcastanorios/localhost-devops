@@ -1,18 +1,13 @@
-# Usar una imagen base oficial de Python
-FROM python:3.9-slim
+FROM public.ecr.aws/docker/library/alpine:3.14
 
-# Configuración del directorio de trabajo
+RUN apk add py3-pip \
+    && pip install --upgrade pip
+
 WORKDIR /app
+COPY . /app/
+    
+RUN pip install -r requirements.txt
 
-# Copiar los archivos de requerimientos e instalar las dependencias
-COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar el código de la aplicación al contenedor
-COPY . .
-
-# Exponer el puerto en el que Flask se ejecutará
 EXPOSE 5000
 
-# Comando para ejecutar la aplicación Flask en modo desarrollo
-CMD ["./wait-for-it.sh", "db:5432", "--", "flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "application.py"]

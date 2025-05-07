@@ -7,9 +7,9 @@ phases:
   build:
     commands:
       - echo Inicio compilación en `date`
-      - echo Construyendo imagen de docker...          
+      - echo Construyendo imagen de docker...
       - docker build -t localhost_app_respository:latest .
-      - echo Etiquetando imagen de docker...  
+      - echo Etiquetando imagen de docker...
       - docker tag localhost_app_respository:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest
   post_build:
     commands:
@@ -25,6 +25,7 @@ artifacts:
     - '**/*'
     - imagedefinitions.json
     - imageLocalhostDevopsDetail.json
+    - taskdef.json
   secondary-artifacts:
     DefinitionArtifact:
       files:

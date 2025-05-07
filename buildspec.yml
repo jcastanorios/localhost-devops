@@ -25,4 +25,5 @@ artifacts:
     - taskdef.json
     - imagedefinitions.json
     - imageLocalhostDevopsDetail.json
+    - appspec.json
   name: BuildArtifact

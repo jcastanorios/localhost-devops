@@ -23,7 +23,7 @@
         },
         {
           "name": "DATABASE_URL",
-          "value": "postgresql://localhostdb:l0c4lh0stdb@localhost-db.c1422m44qk5v.us-east-2.rds.amazonaws.com:5432/postgres"
+          "value":"postgresql://localhostdb:12345678@localhost-db.c1422m44qk5v.us-east-2.rds.amazonaws.com:5432/localhost-db"
         }
       ]
     }

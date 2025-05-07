@@ -26,4 +26,3 @@ artifacts:
     - imagedefinitions.json
     - imageLocalhostDevopsDetail.json
   name: BuildArtifact
-  packaging: ZIP

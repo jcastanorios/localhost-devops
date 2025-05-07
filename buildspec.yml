@@ -22,15 +22,8 @@ phases:
       - cat imagedefinitions.json
 artifacts:
   files:
-    - '**/*'
+    - taskdef.json
     - imagedefinitions.json
     - imageLocalhostDevopsDetail.json
-    - taskdef.json
-  secondary-artifacts:
-    DefinitionArtifact:
-      files:
-        - appspec.yaml
-        - taskdef.json
-    ImageArtifact:
-      files:
-        - imageLocalhostDevopsDetail.json
+  name: BuildArtifact
+  packaging: ZIP

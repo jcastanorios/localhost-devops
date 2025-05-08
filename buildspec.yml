@@ -1,5 +1,9 @@
 version: 0.2
 phases:
+  install:
+    commands:
+      - echo "Instalando dependencias..."
+      - npm install -g newman
   pre_build:
     commands:
       - echo Loguearse dentro de Amazon ECR...
@@ -20,6 +24,11 @@ phases:
       - printf '[{"name":"Container-app-python","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}]' > imageDefinitions.json
       - printf '{"ImageURI":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}' > imageDetail.json
       - cat imageDefinitions.json
+  acceptance_test:
+    commands:
+      - echo "Ejecutando pruebas de aceptación..."
+      - newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
+      - echo "Pruebas de aceptación completadas..."
 artifacts:
   files:
     - taskdef.json

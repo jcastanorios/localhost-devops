@@ -1,12 +1,12 @@
 version: 0.2
 env:
   variables:
-    PIPELINE_STAGE: ""
+    PIPELINE_STAGE: ""  
 phases:
   install:
     commands:
       - echo "Instalando dependencias..."
-      - npm install -g newman
+      - npm install -g newman  
   build:
     commands:
       - |
@@ -23,11 +23,10 @@ phases:
           printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
           printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
           
-          # Create the artifacts section directly as a YAML file.
-          printf "artifacts:\n  files:\n    - imageDefinitions.json\n    - imageDetail.json\n    - taskdef.json\n    - appspec.json\n  name: BuildArtifact" > artifacts.yaml
+          # Define los artefactos de construcción.  IMPORTANTE:  Fuera del condicional 'if'.
           
         else
-          echo "PIPELINE_STAGE no es build, omitiendo la creación de artefactos"
+          echo "PIPELINE_STAGE no es build, omitiendo la construcción de la imagen"
         fi
   post_build:
     commands:
@@ -35,10 +34,14 @@ phases:
         if [ "$PIPELINE_STAGE" = "test" ]; then
           echo "Ejecutando pruebas de aceptación con Postman y Newman..."
           newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
-          echo "Pruebas de aceptación completadas."
-          
-          # Create the artifacts section directly as a YAML file.
-          printf "artifacts:\n  files: []\n  name: TestArtifact" > artifacts.yaml
+          echo "Pruebas de Postman completadas."
         else
-          echo "PIPELINE_STAGE no es test, omitiendo la creación de artefactos"
+          echo "PIPELINE_STAGE no es test, omitiendo la ejecución de pruebas"
         fi
+artifacts:
+  files:
+    - imageDefinitions.json
+    - imageDetail.json
+    - taskdef.json
+    - appspec.json
+  name: BuildArtifact

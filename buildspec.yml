@@ -11,18 +11,20 @@ phases:
     commands:
       - |
         if [ "$PIPELINE_STAGE" = "build" ]; then
-          echo "Inicio de la construcción en \`date\`";
-          echo "Construyendo imagen de docker...";
-          docker build -t nombre-de-tu-repositorio:latest .;
-          echo "Etiquetando imagen de docker...";
-          docker tag nombre-de-tu-repositorio:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest;
-          echo "Creación de imagen completada en \`date\`";
-          echo "Enviando imagen al repositorio de AWS...";
-          docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest;
-          echo "Escribiendo el archivo de definición de la imagen...";
-          printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json;
-          printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json;
-          artifacts:
+          echo "Inicio de la construcción en \`date\`"
+          echo "Construyendo imagen de docker..."
+          docker build -t nombre-de-tu-repositorio:latest .
+          echo "Etiquetando imagen de docker..."
+          docker tag nombre-de-tu-repositorio:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest
+          echo "Creación de imagen completada en \`date\`"
+          echo "Enviando imagen al repositorio de AWS..."
+          docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest
+          echo "Escribiendo el archivo de definición de la imagen..."
+          printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
+          printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
+          
+          
+          artifacts: # artifacts block should be within the if condition.
             files:
               - imageDefinitions.json
               - imageDetail.json
@@ -34,10 +36,10 @@ phases:
     commands:
       - |
         if [ "$PIPELINE_STAGE" = "test" ]; then
-          echo "Ejecutando pruebas de aceptación con Postman y Newman...";
-          newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json;
-          echo "Pruebas de aceptación completadas.";
-          artifacts:
+          echo "Ejecutando pruebas de aceptación con Postman y Newman..."
+          newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
+          echo "Pruebas de aceptación completadas."
+          artifacts: # artifacts block should be within the if condition.
             files: []
             name: TestArtifact
         fi

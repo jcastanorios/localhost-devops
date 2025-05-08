@@ -3,10 +3,16 @@ env:
   variables:
     PIPELINE_STAGE: ""  
 phases:
+
   install:
     commands:
       - echo "Instalando dependencias..."
       - npm install -g newman  
+  
+  pre_build:
+    commands:
+      - echo Loguearse dentro de Amazon ECR...
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 781000631387.dkr.ecr.us-east-2.amazonaws.com
   build:
     commands:
       - |
@@ -22,7 +28,11 @@ phases:
           echo "Escribiendo el archivo de definición de la imagen..."
           printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
           printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
-          
+
+        elif [ "$PIPELINE_STAGE" = "unittest" ]; then
+          echo "Ejecutando pruebas unitarias de Python..."
+          python3 -m unittest discover -s tests
+          echo "Pruebas unitarias de Python completadas."  
         else
           echo "PIPELINE_STAGE no es build, omitiendo la construcción de la imagen"
         fi

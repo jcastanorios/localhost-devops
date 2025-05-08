@@ -31,7 +31,7 @@ phases:
 
         elif [ "$PIPELINE_STAGE" = "unittest" ]; then
           echo "Ejecutando pruebas unitarias de Python..."
-          python3 -m unittest discover -s test
+          python3 -m unittest discover -s tests
           echo "Pruebas unitarias de Python completadas."  
         else
           echo "PIPELINE_STAGE no es build, omitiendo la construcción de la imagen"

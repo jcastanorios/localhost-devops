@@ -1,48 +1,53 @@
 version: 0.2
+
 env:
   variables:
     PIPELINE_STAGE: ""  
+
 phases:
 
   install:
     commands:
+      - set -e
       - echo "Instalando dependencias..."
       - npm install -g newman  
   
   pre_build:
     commands:
-      - echo Loguearse dentro de Amazon ECR...
+      - set -e
+      - echo "Loguearse dentro de Amazon ECR..."
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 781000631387.dkr.ecr.us-east-2.amazonaws.com
+
   build:
     commands:
+      - set -e
       - |
         if [ "$PIPELINE_STAGE" = "build" ]; then
-          echo "Inicio de la construcción en \`date\`"
-          echo "Construyendo imagen de docker..."
+          echo "Inicio de la construcción en $(date)"
+          echo "Construyendo imagen de Docker..."
           docker build -t nombre-de-tu-repositorio:latest .
-          echo "Etiquetando imagen de docker..."
+          echo "Etiquetando imagen de Docker..."
           docker tag nombre-de-tu-repositorio:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest
-          echo "Creación de imagen completada en \`date\`"
+          echo "Creación de imagen completada en $(date)"
           echo "Enviando imagen al repositorio de AWS..."
           docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest
           echo "Escribiendo el archivo de definición de la imagen..."
           printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
           printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
 
-
         elif [ "$PIPELINE_STAGE" = "unittest" ]; then
           echo "Ejecutando pruebas unitarias dentro del contenedor Docker..."
-          set -e
           docker build -t my-test-image .
           docker run --rm my-test-image python3 -m unittest discover -s test -p "test_*.py"
-          echo "Pruebas unitarias de Python completadas."  
-
+          echo "Pruebas unitarias de Python completadas."
 
         else
-          echo "PIPELINE_STAGE no es build, omitiendo la construcción de la imagen"
+          echo "PIPELINE_STAGE no es build ni unittest, omitiendo la construcción de la imagen"
         fi
+
   post_build:
     commands:
+      - set -e
       - |
         if [ "$PIPELINE_STAGE" = "test" ]; then
           echo "Ejecutando pruebas de aceptación con Postman y Newman..."
@@ -51,6 +56,7 @@ phases:
         else
           echo "PIPELINE_STAGE no es test, omitiendo la ejecución de pruebas"
         fi
+
 artifacts:
   files:
     - imageDefinitions.json

@@ -32,6 +32,7 @@ phases:
 
         elif [ "$PIPELINE_STAGE" = "unittest" ]; then
           echo "Ejecutando pruebas unitarias dentro del contenedor Docker..."
+          set -e
           docker build -t my-test-image .
           docker run --rm my-test-image python3 -m unittest discover -s test -p "test_*.py"
           echo "Pruebas unitarias de Python completadas."  

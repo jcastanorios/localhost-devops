@@ -2,16 +2,15 @@ version: 0.2
 
 env:
   variables:
-    PIPELINE_STAGE: ""  
+    PIPELINE_STAGE: ""
 
 phases:
-
   install:
     commands:
       - set -e
       - echo "Instalando dependencias..."
       - npm install -g newman  
-  
+
   pre_build:
     commands:
       - set -e
@@ -38,8 +37,13 @@ phases:
         elif [ "$PIPELINE_STAGE" = "unittest" ]; then
           echo "Ejecutando pruebas unitarias dentro del contenedor Docker..."
           docker build -t my-test-image .
-          docker run --rm my-test-image python3 -m unittest discover -s test -p "test_*.py"
-          echo "Pruebas unitarias de Python completadas."
+          docker run --rm my-test-image sh -c "python3 -m unittest discover -s test -p 'test_*.py'"
+          TEST_RESULT=$?
+          if [ $TEST_RESULT -ne 0 ]; then
+            echo "Pruebas unitarias fallaron."
+            exit $TEST_RESULT
+          fi
+          echo "Pruebas unitarias completadas exitosamente."
 
         else
           echo "PIPELINE_STAGE no es build ni unittest, omitiendo la construcción de la imagen"
@@ -52,7 +56,12 @@ phases:
         if [ "$PIPELINE_STAGE" = "test" ]; then
           echo "Ejecutando pruebas de aceptación con Postman y Newman..."
           newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
-          echo "Pruebas de Postman completadas."
+          NEWMAN_RESULT=$?
+          if [ $NEWMAN_RESULT -ne 0 ]; then
+            echo "Las pruebas de Postman fallaron."
+            exit $NEWMAN_RESULT
+          fi
+          echo "Pruebas de Postman completadas exitosamente."
         else
           echo "PIPELINE_STAGE no es test, omitiendo la ejecución de pruebas"
         fi

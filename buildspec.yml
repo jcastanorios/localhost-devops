@@ -23,8 +23,6 @@ phases:
           printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
           printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
           
-          # Define los artefactos de construcción.  IMPORTANTE:  Fuera del condicional 'if'.
-          
         else
           echo "PIPELINE_STAGE no es build, omitiendo la construcción de la imagen"
         fi

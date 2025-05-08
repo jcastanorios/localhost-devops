@@ -23,18 +23,9 @@ phases:
           printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json
           printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json
           
-          # Create artifacts section using a separate YAML string
-          ARTIFACTS_YAML=$(cat <<EOF
-artifacts:
-  files:
-    - imageDefinitions.json
-    - imageDetail.json
-    - taskdef.json
-    - appspec.json
-  name: BuildArtifact
-EOF
-)
-          echo "$ARTIFACTS_YAML" >> buildspec.yaml
+          # Create the artifacts section directly as a YAML file.
+          printf "artifacts:\n  files:\n    - imageDefinitions.json\n    - imageDetail.json\n    - taskdef.json\n    - appspec.json\n  name: BuildArtifact" > artifacts.yaml
+          
         else
           echo "PIPELINE_STAGE no es build, omitiendo la creación de artefactos"
         fi
@@ -46,14 +37,8 @@ EOF
           newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
           echo "Pruebas de aceptación completadas."
           
-          # Create artifacts section using a separate YAML string
-          ARTIFACTS_YAML=$(cat <<EOF
-artifacts:
-  files: []
-  name: TestArtifact
-EOF
-)
-          echo "$ARTIFACTS_YAML" >> buildspec.yaml
+          # Create the artifacts section directly as a YAML file.
+          printf "artifacts:\n  files: []\n  name: TestArtifact" > artifacts.yaml
         else
           echo "PIPELINE_STAGE no es test, omitiendo la creación de artefactos"
         fi

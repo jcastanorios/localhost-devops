@@ -1,36 +1,43 @@
 version: 0.2
+env:
+  variables:
+    PIPELINE_STAGE: ""
 phases:
   install:
     commands:
       - echo "Instalando dependencias..."
-      - npm install -g newman 
-  pre_build:
-    commands:
-      - echo Loguearse dentro de Amazon ECR...
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 781000631387.dkr.ecr.us-east-2.amazonaws.com
+      - npm install -g newman
   build:
     commands:
-      - echo Inicio compilación en `date`
-      - echo Construyendo imagen de docker...
-      - docker build -t localhost_app_respository:latest .
-      - echo Etiquetando imagen de docker...
-      - docker tag localhost_app_respository:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest
+      - |
+        if [ "$PIPELINE_STAGE" = "build" ]; then
+          echo "Inicio de la construcción en \`date\`";
+          echo "Construyendo imagen de docker...";
+          docker build -t nombre-de-tu-repositorio:latest .;
+          echo "Etiquetando imagen de docker...";
+          docker tag nombre-de-tu-repositorio:latest 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest;
+          echo "Creación de imagen completada en \`date\`";
+          echo "Enviando imagen al repositorio de AWS...";
+          docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest;
+          echo "Escribiendo el archivo de definición de la imagen...";
+          printf '[{"name":"nombre-de-tu-contenedor","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/nombre-de-tu-repositorio:latest"}]' > imageDefinitions.json;
+          printf '{"ImageURI":"nombre-de-tu-repositorio:latest"}' > imageDetail.json;
+          artifacts:
+            files:
+              - imageDefinitions.json
+              - imageDetail.json
+              - taskdef.json
+              - appspec.json
+            name: BuildArtifact
+        fi
   post_build:
     commands:
-      - echo Creación de imagen completada en `date`
-      - echo Enviar  imagen al repositorio de AWS...
-      - docker push 781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest
-      - echo Escribiendo el archivo de definición de la imagen...
-      - printf '[{"name":"Container-app-python","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}]' > imageDefinitions.json
-      - printf '{"ImageURI":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}' > imageDetail.json
-      - cat imageDefinitions.json
-      - echo "Ejecutando pruebas de aceptación con Postman y Newman..."
-      - newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json
-      - echo "Pruebas de aceptación completadas."
-artifacts:
-  files:
-    - taskdef.json
-    - imageDefinitions.json
-    - imageDetail.json
-    - appspec.json
-  name: BuildArtifact
+      - |
+        if [ "$PIPELINE_STAGE" = "test" ]; then
+          echo "Ejecutando pruebas de aceptación con Postman y Newman...";
+          newman run acceptance-test/blacklist-collection.postman_collection.json -e acceptance-test/fargate.postman_environment.json;
+          echo "Pruebas de aceptación completadas.";
+          artifacts:
+            files: []
+            name: TestArtifact
+        fi

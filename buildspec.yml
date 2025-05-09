@@ -33,7 +33,7 @@ phases:
           echo "Escribiendo el archivo de definición de la imagen..."
           printf '[{"name":"container-localhost-app","imageUri":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}]' > imageDefinitions.json
                                                                  
-          printf '{"ImageURI":"localhost_app_respository:latest"}' > imageDetail.json
+          printf '{"ImageURI":"781000631387.dkr.ecr.us-east-2.amazonaws.com/localhost_app_respository:latest"}' > imageDetail.json
 
         elif [ "$PIPELINE_STAGE" = "unittest" ]; then
           echo "Ejecutando pruebas unitarias dentro del contenedor Docker..."
